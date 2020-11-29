@@ -3,7 +3,6 @@ package whotd
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/fatih/color"
@@ -12,7 +11,7 @@ import (
 var baseURL = "https://en.wikipedia.org/wiki/"
 
 type Event struct {
-	date      time.Time
+	query     string
 	eventType []string
 }
 
@@ -22,20 +21,14 @@ type EventResponse struct {
 	deaths []string
 }
 
-func NewEvent() *Event {
+func NewEvent(query string) *Event {
 	events := []string{"events", "births", "deaths"}
-	return &Event{date: time.Now(), eventType: events}
-}
-
-func (e *Event) getMonthStr() string {
-	_, month, day := e.date.Date()
-	return fmt.Sprintf("%v_%d", month, day)
-
+	return &Event{query: query, eventType: events}
 }
 
 func (e *Event) CrawlDatePage() (EventResponse, error) {
 	var eventResponse EventResponse
-	url := fmt.Sprintf("%s%s", baseURL, e.getMonthStr())
+	url := fmt.Sprintf("%s%s", baseURL, e.query)
 	resp, err := http.Get(url)
 	if err != nil {
 		return eventResponse, err
@@ -70,7 +63,7 @@ func (e *Event) CrawlDatePage() (EventResponse, error) {
 }
 
 func (e *Event) FormatResponse(response EventResponse) {
-	color.Blue("PROMINENTS EVENTS THAT OCCURED ON THIS DAY")
+	color.Blue("\nPROMINENTS EVENTS THAT OCCURED ON THIS DAY")
 	fmt.Println()
 
 	for _, event := range response.events {
