@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/fatih/color"
 )
 
 var baseURL = "https://en.wikipedia.org/wiki/"
@@ -50,11 +51,13 @@ func (e *Event) CrawlDatePage() (EventResponse, error) {
 	var births []string
 	var deaths []string
 	document.Find(selector).Each(func(index int, selection *goquery.Selection) {
-		if index <= 2 {
+		//skip first content as it is not important
+		//and also target the next 3 content only
+		if index <= 3 && index != 0 {
 			selection.Find("li").Each(func(i int, s *goquery.Selection) {
-				if index == 0 {
+				if index == 1 {
 					events = append(events, s.Text())
-				} else if index == 1 {
+				} else if index == 2 {
 					births = append(births, s.Text())
 				} else {
 					deaths = append(deaths, s.Text())
@@ -67,24 +70,25 @@ func (e *Event) CrawlDatePage() (EventResponse, error) {
 }
 
 func (e *Event) FormatResponse(response EventResponse) {
+	color.Blue("PROMINENTS EVENTS THAT OCCURED ON THIS DAY")
+	fmt.Println()
+
 	for _, event := range response.events {
-		fmt.Println(event)
+		fmt.Printf("%s\n\n", event)
 	}
 
-	fmt.Println()
-	fmt.Println(".....................................")
+	color.Green("BIRTHS OF PROMINENT PEOPLE ON THIS DAY")
 	fmt.Println()
 
 	for _, event := range response.births {
-		fmt.Println(event)
+		fmt.Printf("%s\n\n", event)
 	}
 
-	fmt.Println()
-	fmt.Println(".....................................")
+	color.Red("DEATHS OF PROMINENT PEOPLE ON THIS DAY\n")
 	fmt.Println()
 
 	for _, event := range response.deaths {
-		fmt.Println(event)
+		fmt.Printf("%s\n\n", event)
 	}
 
 }
